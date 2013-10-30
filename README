@@ -1,0 +1,40 @@
+WhatFreeGrab?
+=============
+
+*An automated freeleech grabber for What.CD*
+
+WhatFreeGrab? is a Python script to automatically download freeleech torrents
+from What.CD.
+
+The only dependency outside the standard library is the requests module, and
+that can be downloaded by the script as well.
+
+Edit the wfg.cfg file with your WCD username, password and the target directory
+where you want the torrents saved.
+
+Credits
+-------
+
+WhatFreeGrab borrows heavily from Yoink! [1], originally by phracker, using code
+by tobbez and from whatapi [2] by isaaczafuta. Many thanks.
+
+  [1]: https://github.com/phracker/yoink
+  [2]: https://github.com/isaaczafuta/whatapi
+
+Template Fields
+---------------
+
+The filename template is created using the data available for each torrent.
+
+Note that values outside of the defaults are untested.
+
+For music torrents, the following fields are avilable:
+
+artist, artists, bookmarked, canUseToken, cover, editionId, encoding, fileCount,
+format, groupId, groupName, groupTime, groupYear, hasCue, hasLog, hasSnatched,
+isFreeleech, isNeutralLeech, isPersonalFreeleech, leechers, logScore, maxSize,
+media, releaseType, remasterCatalogueNumber, remasterTitle, remasterYear,
+remastered, scene, seeders, size, snatches, tags, time, torrentId,
+totalLeechers, totalSeeders, totalSnatched, vanityHouse
+
+For non-music torrents, the following fields are available: (TODO)
