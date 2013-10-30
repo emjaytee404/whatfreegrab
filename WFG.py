@@ -120,6 +120,7 @@ class WhatFreeGrab(object):
             self.state = pickle.load(open(self.state_file))
         else:
             self.state = {}
+            self._first_run()
 
         if 'cookies' in self.state:
             self.session.cookies = self.state['cookies']
@@ -137,6 +138,31 @@ class WhatFreeGrab(object):
                 self.quit("Unable to login. Check your configuration.")
             else:
                 self._get_accountinfo()
+
+    def _first_run(self):
+        import random
+
+        rand_minutes = str(random.randrange(60)).zfill(2)
+        script_path = os.path.join(SCRIPT_DIR, sys.argv[0])
+
+        message = """
+Hey there! It looks like you are running this script for the first time.
+
+If you plan on adding the script to your cron file, consider using the
+following line:
+
+%s * * * * python %s
+
+The minutes field above has been randomly-determined.
+
+Spreading the scheduling like this helps avoid having a bunch of scripts all
+hitting the server every hour on the hour.
+
+Thanks.
+""" % (rand_minutes, script_path)
+
+        print message
+        raw_input("Press ENTER to continue... ")
 
     def _get_accountinfo(self):
 
