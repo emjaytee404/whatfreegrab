@@ -15,8 +15,8 @@ where you want the torrents saved.
 Credits
 -------
 
-WhatFreeGrab borrows heavily from Yoink! [1], originally by phracker, using code
-by tobbez and from whatapi [2] by isaaczafuta. Many thanks.
+WhatFreeGrab borrows heavily from Yoink! [1], by phracker, using code
+originally by tobbez, and from whatapi [2] by isaaczafuta. Many thanks.
 
   [1]: https://github.com/phracker/yoink
   [2]: https://github.com/isaaczafuta/whatapi
@@ -37,4 +37,8 @@ media, releaseType, remasterCatalogueNumber, remasterTitle, remasterYear,
 remastered, scene, seeders, size, snatches, tags, time, torrentId,
 totalLeechers, totalSeeders, totalSnatched, vanityHouse
 
-For non-music torrents, the following fields are available: (TODO)
+For non-music torrents, the following fields are available:
+
+canUseToken, category, fileCount, groupId, groupName, groupTime, hasSnatched,
+isFreeleech, isNeutralLeech, isPersonalFreeleech, leechers, seeders, size,
+snatches, tags, torrentId
