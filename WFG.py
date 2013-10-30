@@ -14,6 +14,7 @@ import cPickle as pickle
 SCRIPT_DIR  = os.path.dirname(os.path.realpath(sys.argv[0]))
 CONFIG_FILE = os.path.join(SCRIPT_DIR, 'wfg.cfg')
 STATE_FILE  = os.path.join(SCRIPT_DIR, 'wfg.dat')
+LOCK_FILE   = os.path.join(SCRIPT_DIR, 'wfg.pid')
 
 try:
     import requests
@@ -77,6 +78,8 @@ class WhatFreeGrab(object):
     torrentpage = "https://what.cd/torrents.php"
 
     def __init__(self, config_file, state_file):
+
+        self.instance = SingleInstance(LOCK_FILE)
 
         self.config_file = config_file
         self.state_file = state_file
@@ -312,6 +315,57 @@ class WhatFreeGrab(object):
                     pass
             return text # leave as is
         return WhatFreeGrab.HTML_RE.sub(fixup, text)
+
+# https://github.com/pycontribs/tendo/blob/master/tendo/singleton.py
+class SingleInstance:
+
+    def __init__(self, lockfile):
+        import sys
+        self.initialized = False
+        self.lockfile = lockfile
+
+        if sys.platform == 'win32':
+            try:
+                # file already exists, we try to remove (in case previous execution was interrupted)
+                if os.path.exists(self.lockfile):
+                    os.unlink(self.lockfile)
+                self.fd = os.open(self.lockfile, os.O_CREAT | os.O_EXCL | os.O_RDWR)
+            except OSError:
+                type, e, tb = sys.exc_info()
+                if e.errno == 13:
+                    print "Another instance is already running, quitting."
+                    sys.exit(-1)
+                print e.errno
+                raise
+        else: # non Windows
+            import fcntl
+            self.fp = open(self.lockfile, 'w')
+            try:
+                fcntl.lockf(self.fp, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except IOError:
+                print "Another instance is already running, quitting."
+                sys.exit(-1)
+        self.initialized = True
+
+    def __del__(self):
+        import sys
+        import os
+        if not self.initialized:
+            return
+        try:
+            if sys.platform == 'win32':
+                if hasattr(self, 'fd'):
+                    os.close(self.fd)
+                    os.unlink(self.lockfile)
+            else:
+                import fcntl
+                fcntl.lockf(self.fp, fcntl.LOCK_UN)
+                # os.close(self.fp)
+                if os.path.isfile(self.lockfile):
+                    os.unlink(self.lockfile)
+        except Exception as e:
+            print "Unloggable error: %s" % e
+            sys.exit(-1)
 
 if __name__ == '__main__':
     WhatFreeGrab(config_file=CONFIG_FILE, state_file=STATE_FILE).run()
