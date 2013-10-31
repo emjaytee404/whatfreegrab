@@ -77,6 +77,11 @@ class WhatFreeGrab(object):
     ajaxpage    = "https://what.cd/ajax.php"
     torrentpage = "https://what.cd/torrents.php"
 
+    defaults = {
+        'template_music': "${artist} - ${groupName} (${format} ${encoding}) [${torrentId}]",
+        'template_other': "${groupName} [${torrentId}]"
+    }
+
     def __init__(self, config_file, state_file):
 
         self.instance = SingleInstance(LOCK_FILE)
@@ -84,7 +89,7 @@ class WhatFreeGrab(object):
         self.config_file = config_file
         self.state_file = state_file
 
-        self.config = ConfigParser.ConfigParser()
+        self.config = ConfigParser.SafeConfigParser(WhatFreeGrab.defaults)
         self.config.read(self.config_file)
 
         self.username = self.config.get('login', 'username')
