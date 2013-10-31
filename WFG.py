@@ -211,7 +211,7 @@ Let's go ahead and create a new configuration file."""
         config.add_section('download')
         config.set('download', 'target', target)
 
-        print "\nFinally, do you want to use the same filename format for .torrents that Yoink! used?"
+        print "\nFinally, do you want to use the same filename format that Yoink! used?"
         print "See README for the default used otherwise, as well as other formats available."
         if raw_input("Use Yoink! filename format? [Y/N] ").lower().startswith("y"):
             config.set('download', 'template_music', "${torrentId}. ${yoinkFormat}")
