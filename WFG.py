@@ -245,9 +245,16 @@ Thanks.
         for group in response['results']:
             if 'torrents' in group:
                 for torrent in group.pop('torrents'):
-                    torrent_list.append(dict(group.items() + torrent.items()))
+                    yoink_format = {
+                        'yoinkFormat':
+                        "%s - %s - %s (%s - %s - %s)" %
+                        (group['artist'][:50], group['groupYear'], group['groupName'][:50],
+                        torrent['media'], torrent['format'], torrent['encoding'])
+                    }
+                    torrent_list.append(dict(group.items() + torrent.items() + yoink_format.items()))
             else:
-                torrent_list.append(group)
+                yoink_format = {'yoinkFormat': group['groupName'][:100]}
+                torrent_list.append(group.items() + yoink_format.items())
 
         return response['pages'], torrent_list
 

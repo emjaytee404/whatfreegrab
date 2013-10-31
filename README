@@ -26,6 +26,11 @@ Template Fields
 
 The filename template is created using the data available for each torrent.
 
+To match the Yoink! style filenames, set your naming templates like so:
+
+music_template = ${torrentId}. ${yoinkFormat}
+other_template = ${torrentId} ${yoinkFormat}
+
 Note that values outside of the defaults are untested.
 
 For music torrents, the following fields are avilable:
