@@ -86,10 +86,22 @@ class WhatFreeGrab(object):
 
         self.instance = SingleInstance(LOCK_FILE)
 
+        self.session = requests.session()
+        self.session.headers = WhatFreeGrab.headers
+
         self.config_file = config_file
         self.state_file = state_file
 
         self.config = ConfigParser.SafeConfigParser(WhatFreeGrab.defaults)
+
+        if os.path.exists(self.state_file):
+            self.state = pickle.load(open(self.state_file))
+        else:
+            self.state = {}
+
+        if not os.path.exists(self.config_file):
+            self._first_run()
+
         self.config.read(self.config_file)
 
         self.username = self.config.get('login', 'username')
@@ -119,16 +131,6 @@ class WhatFreeGrab(object):
         self.authkey = None
         self.passkey = None
 
-        self.session = requests.session()
-
-        self.session.headers = WhatFreeGrab.headers
-
-        if os.path.exists(self.state_file):
-            self.state = pickle.load(open(self.state_file))
-        else:
-            self.state = {}
-            self._first_run()
-
         if 'cookies' in self.state:
             self.session.cookies = self.state['cookies']
         else:
@@ -147,13 +149,84 @@ class WhatFreeGrab(object):
                 self._get_accountinfo()
 
     def _first_run(self):
+        import getpass
         import random
 
+        config = ConfigParser.SafeConfigParser()
         rand_minutes = str(random.randrange(60)).zfill(2)
         script_path = os.path.join(SCRIPT_DIR, sys.argv[0])
 
         message = """
 Hey there! It looks like you are running this script for the first time.
+
+Let's go ahead and create a new configuration file."""
+
+        print message
+
+        while True:
+
+            print "\nFirst we will need your What.CD username and password."
+
+            username = raw_input("Enter your username: ")
+            if not username:
+                continue
+
+            password = getpass.getpass("Enter your password (will not be shown on screen): ")
+            if not password:
+                continue
+
+            print "\nGot it. The script will try to login with this info...",
+
+            self.username = username
+            self.password = password
+
+            try:
+                self._login()
+            except WFGException:
+                print "failed. :("
+                print "Let's try again."
+                continue
+            else:
+                print "success!"
+                break
+
+        config.add_section('login')
+        config.set('login', 'username', username)
+        config.set('login', 'password', password)
+
+        while True:
+
+            print "\nThe directory where the script downloads .torrent files is called the target."
+
+            target = raw_input("Enter target: ")
+
+            if not os.path.exists(os.path.expanduser(target)):
+                print "The path '%s' does not exist." % target
+                print "Let's try again."
+                continue
+            else:
+                print "\nLooks good."
+                break
+
+        config.add_section('download')
+        config.set('download', 'target', target)
+
+        print "\nFinally, do you want to use the same filename format for .torrents that Yoink! used?"
+        print "See README for the default used otherwise, as well as other formats available."
+        if raw_input("Use Yoink! filename format? [Y/N] ").lower().startswith("y"):
+            config.set('download', 'template_music', "${torrentId}. ${yoinkFormat}")
+            config.set('download', 'template_other', "${torrentId} ${yoinkFormat}")
+        else:
+            # Use defaults, no need to save them in config.
+            pass
+
+        with open(self.config_file, 'w') as f:
+            config.write(f)
+
+        message = """
+Configuration file created successfully.
+
+-------------------------------------------------------------------------------
 
 If you plan on adding the script to your cron file, consider using the
 following line:
@@ -165,7 +238,7 @@ The minutes field above has been randomly-determined.
 Spreading the scheduling like this helps avoid having a bunch of scripts all
 hitting the server every hour on the hour.
 
-Thanks.
+Enjoy!
 """ % (rand_minutes, script_path)
 
         print message
