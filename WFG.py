@@ -214,22 +214,22 @@ Thanks.
             torrent_id = torrent['torrentId']
 
             if torrent_id in self.history:
-                print "%s - torrent has been previously downloaded" % torrent_id
+                print "SKIP %s" % torrent_id
                 continue
 
             if os.path.exists(filepath):
-                print "%s - torrent already exists: '%s'" % (torrent_id, filename)
+                print "SKIP %s" % torrent_id
                 continue
 
             data = self.get_torrent(torrent_id)
             if not data:
-                print "%s - unable to download torrent" % torrent_id
+                print "FAIL %s" % torrent_id
                 continue
 
             with open(filepath, 'wb') as f:
                 f.write(data)
 
-            print "%s - saved to '%s'" % (torrent_id, filename)
+            print "SAVE %s" % torrent_id
 
             self.history.add(torrent_id)
 
