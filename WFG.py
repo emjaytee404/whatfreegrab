@@ -334,7 +334,7 @@ Enjoy!
                     torrent_list.append(dict(group.items() + torrent.items() + yoink_format.items()))
             else:
                 yoink_format = {'yoinkFormat': group['groupName'][:100]}
-                torrent_list.append(group.items() + yoink_format.items())
+                torrent_list.append(dict(group.items() + yoink_format.items()))
 
         return response['pages'], torrent_list
 
