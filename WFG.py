@@ -97,6 +97,8 @@ class WhatFreeGrab(object):
         if not self.target:
             self.quit("No target directory specified in configuration.")
 
+        self.target = os.path.expanduser(self.target)
+
         if not os.path.exists(self.target):
             os.makedirs(self.target)
 
