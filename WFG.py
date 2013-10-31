@@ -95,7 +95,7 @@ class WhatFreeGrab(object):
         self.config = ConfigParser.SafeConfigParser(WhatFreeGrab.defaults)
 
         if os.path.exists(self.state_file):
-            self.state = pickle.load(open(self.state_file))
+            self.state = pickle.load(open(self.state_file, 'rb'))
         else:
             self.state = {}
 
@@ -405,7 +405,7 @@ Enjoy!
 
     def save_state(self):
 
-        pickle.dump(self.state, open(self.state_file, 'w'))
+        pickle.dump(self.state, open(self.state_file, 'wb'))
 
     # http://effbot.org/zone/re-sub.htm#unescape-html
     def unescape_html(self, text):
