@@ -24,12 +24,17 @@ originally by tobbez, and from whatapi [2] by isaaczafuta. Many thanks.
 Template Fields
 ---------------
 
-The filename template is created using the data available for each torrent.
+The filename template is created using data fields available for each torrent.
+
+The default values are:
+
+template_music =  ${artist} - ${groupName} (${format} ${encoding}) [${torrentId}]
+template_other =  ${groupName} [${torrentId}]
 
 To match the Yoink! style filenames, set your naming templates like so:
 
-music_template = ${torrentId}. ${yoinkFormat}
-other_template = ${torrentId} ${yoinkFormat}
+template_music = ${torrentId}. ${yoinkFormat}
+template_music = ${torrentId} ${yoinkFormat}
 
 Note that values outside of the defaults are untested.
 
