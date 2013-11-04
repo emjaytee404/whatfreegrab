@@ -47,10 +47,16 @@ except ImportError:
         dirname = os.path.join(root, 'requests')
         filelist = [filename for filename in filelist if filename.startswith(dirname)]
 
-        data.extractall(SCRIPT_DIR, filelist)
+        cwd = os.getcwd()
+
+        os.chdir(SCRIPT_DIR)
+
+        data.extractall(members=filelist)
 
         os.rename(dirname, 'requests')
         os.rmdir(root)
+
+        os.chdir(cwd)
 
         print "Extraction complete. Will attempt to continue..."
 
