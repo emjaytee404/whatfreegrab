@@ -97,7 +97,15 @@ class WhatFreeGrab(object):
 
         self.instance = SingleInstance(self.lock_file)
 
+        self.session = requests.session()
+        self.session.headers = WhatFreeGrab.headers
+
         self.config = ConfigParser.SafeConfigParser(WhatFreeGrab.defaults)
+
+        if os.path.exists(self.state_file):
+            self.state = pickle.load(open(self.state_file, 'rb'))
+        else:
+            self.state = {}
 
         if not os.path.exists(self.config_file):
             self._first_run()
@@ -130,14 +138,6 @@ class WhatFreeGrab(object):
 
         self.template_music = string.Template(self.template_music)
         self.template_other = string.Template(self.template_other)
-
-        self.session = requests.session()
-        self.session.headers = WhatFreeGrab.headers
-
-        if os.path.exists(self.state_file):
-            self.state = pickle.load(open(self.state_file, 'rb'))
-        else:
-            self.state = {}
 
         if 'cookies' in self.state:
             self.session.cookies = self.state['cookies']
