@@ -78,6 +78,7 @@ class WhatFreeGrab(object):
     torrentpage = "https://what.cd/torrents.php"
 
     defaults = {
+        'quiet': False
         'template_music': "${artist} - ${groupName} (${format} ${encoding}) [${torrentId}]",
         'template_other': "${groupName} [${torrentId}]"
     }
@@ -96,6 +97,8 @@ class WhatFreeGrab(object):
             self._first_run()
 
         self.config.read(self.config_file)
+
+        self.quiet = self.config.getbool('output', 'quiet')
 
         self.username = self.config.get('login', 'username')
         self.password = self.config.get('login', 'password')
@@ -357,11 +360,13 @@ Enjoy!
 
         return None
 
-    def quit(self, msg):
+    def message(self, msg, error=False):
+        if (not self.quiet) or (error):
+            print msg
 
-        print "Exiting: %s" % msg
-
-        sys.exit(0)
+    def quit(self, msg, error=False):
+        self.message(msg, error)
+        sys.exit(int(error))
 
     def request(self, action, **kwargs):
 
