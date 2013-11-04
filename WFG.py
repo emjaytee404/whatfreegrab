@@ -312,22 +312,22 @@ Enjoy!
             torrent_id = torrent['torrentId']
 
             if torrent_id in self.history:
-                print "SKIP %s" % torrent_id
+                self.message("SKIP %s" % torrent_id)
                 continue
 
             if os.path.exists(filepath):
-                print "SKIP %s" % torrent_id
+                self.message("SKIP %s" % torrent_id)
                 continue
 
             data = self.get_torrent(torrent_id)
             if not data:
-                print "FAIL %s" % torrent_id
+                self.message("FAIL %s" % torrent_id)
                 continue
 
             with open(filepath, 'wb') as f:
                 f.write(data)
 
-            print "SAVE %s" % torrent_id
+            self.message("SAVE %s" % torrent_id)
 
             self.history.add(torrent_id)
 
