@@ -134,12 +134,12 @@ class WhatFreeGrab(object):
         if not (self.username and self.password):
             self.quit("No username or password specified in configuration.")
 
-        self.target   = self.config.get('download', 'target')
+        self.target = self.config.get('download', 'target')
 
         if not self.target:
             self.quit("No target directory specified in configuration.")
 
-        self.target = os.path.expanduser(self.target)
+        self.target = os.path.realpath(os.path.expanduser(self.target))
 
         if not os.path.exists(self.target):
             os.makedirs(self.target)
@@ -225,16 +225,24 @@ Let's go ahead and create a new configuration file."""
 
             target = raw_input("Enter target: ")
 
-            if not os.path.exists(os.path.expanduser(target)):
-                print "The path '%s' does not exist." % target
-                print "Let's try again."
-                continue
+            full_target = os.path.realpath(os.path.expanduser(target))
+
+            if not os.path.exists(full_target):
+                try:
+                    os.makedirs(full_target)
+                except:
+                    print "Unable to access the '%s' directory." % target
+                    print "Let's try again."
+                    continue
+                else:
+                    print "\nLooks good."
+                    break
             else:
                 print "\nLooks good."
                 break
 
         config.add_section('download')
-        config.set('download', 'target', target)
+        config.set('download', 'target', full_target)
 
         print "\nFinally, do you want to use the same filename format that Yoink! used?"
         print "See README for the default used otherwise, as well as other formats available."
