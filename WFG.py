@@ -82,12 +82,13 @@ class WhatFreeGrab(object):
         'template_other': "${groupName} [${torrentId}]"
     }
 
-    def __init__(self, config_file, state_file):
-
-        self.instance = SingleInstance(LOCK_FILE)
+    def __init__(self, config_file, state_file, lock_file):
 
         self.config_file = config_file
-        self.state_file = state_file
+        self.state_file  = state_file
+        self.lock_file   = lock_file
+
+        self.instance = SingleInstance(self.lock_file)
 
         self.config = ConfigParser.SafeConfigParser(WhatFreeGrab.defaults)
 
@@ -482,4 +483,4 @@ class SingleInstance:
             sys.exit(-1)
 
 if __name__ == '__main__':
-    WhatFreeGrab(config_file=CONFIG_FILE, state_file=STATE_FILE).run()
+    WhatFreeGrab(config_file=CONFIG_FILE, state_file=STATE_FILE, lock_file=LOCK_FILE).run()
