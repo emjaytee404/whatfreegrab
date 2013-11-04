@@ -388,6 +388,19 @@ Enjoy!
 
         return None
 
+    def human_time(self, t):
+        # Yes, I know about datetime.datetime, but this was fun.
+        m, s = divmod(t, 60)
+        h, m = divmod(m, 60)
+        d, h = divmod(h, 24)
+
+        out = ""
+        if h: out += "%d hours, " % h
+        if m: out += "%d minutes, " % m
+        out += "%.2f seconds" % s
+
+        return out
+
     def message(self, msg, error=False, newline=True):
         if (not self.quiet) or (error):
             if newline:
@@ -442,7 +455,7 @@ Enjoy!
                 break
 
         self.message("")
-        self.quit("Process complete")
+        self.quit("Process completed in: %s" % self.human_time(time.time() - self.start_time))
 
     def save_state(self):
 
