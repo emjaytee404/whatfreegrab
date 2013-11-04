@@ -67,8 +67,9 @@ class WFGException(Exception): pass
 
 class WhatFreeGrab(object):
 
-    NAME = "WhatFreeGrab"
-    VER  = "0.1"
+    NAME  = "WhatFreeGrab"
+    VER   = "0.1"
+    IDENT = "%s v%s" % (NAME, VER)
 
     INVALID_CHARS = r'\/:*<>|?"'
     HTML_RE = re.compile("&#?\w+;")
@@ -76,7 +77,7 @@ class WhatFreeGrab(object):
     headers = {
         'Content-type': "application/x-www-form-urlencoded",
         'Accept-Charset': "utf-8",
-        'User-Agent': "%s: %s" % (NAME, VER)
+        'User-Agent': IDENT
     }
 
     loginpage   = "https://what.cd/login.php"
@@ -96,6 +97,8 @@ class WhatFreeGrab(object):
         self.lock_file   = lock_file
 
         self.instance = SingleInstance(self.lock_file)
+
+        self.start_time = time.time()
 
         self.session = requests.session()
         self.session.headers = WhatFreeGrab.headers
@@ -120,6 +123,10 @@ class WhatFreeGrab(object):
             pass
 
         self.quiet = self.config.getboolean('output', 'quiet')
+
+        self.message(WhatFreeGrab.IDENT)
+        self.message("-" * len(WhatFreeGrab.IDENT))
+        self.message("Startup time: %s" % time.strftime("%c", time.localtime(self.start_time)))
 
         self.username = self.config.get('login', 'username')
         self.password = self.config.get('login', 'password')
