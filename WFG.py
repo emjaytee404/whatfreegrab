@@ -78,7 +78,7 @@ class WhatFreeGrab(object):
     torrentpage = "https://what.cd/torrents.php"
 
     defaults = {
-        'quiet': False
+        'quiet': False,
         'template_music': "${artist} - ${groupName} (${format} ${encoding}) [${torrentId}]",
         'template_other': "${groupName} [${torrentId}]"
     }
