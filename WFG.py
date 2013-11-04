@@ -317,18 +317,18 @@ Enjoy!
 
         for torrent in torrent_list:
 
+            torrent_id = torrent['torrentId']
+
+            if torrent_id in self.history:
+                self.message("-", newline=False)
+                continue
+
             filename = self.create_filename(torrent)
             filepath = os.path.join(self.target, filename)
 
             # This is an ugly hack, but it'll have to do for now
             if len(filepath) > 247: # 247 + 9 for .torrent suffix = 255
                 filepath = filepath[:123] + "~" + filepath[-123:]
-
-            torrent_id = torrent['torrentId']
-
-            if torrent_id in self.history:
-                self.message("-", newline=False)
-                continue
 
             if os.path.exists(filepath):
                 self.message("!", newline=False)
