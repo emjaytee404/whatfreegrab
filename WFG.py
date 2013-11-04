@@ -112,7 +112,14 @@ class WhatFreeGrab(object):
 
         self.config.read(self.config_file)
 
-        self.quiet = self.config.getbool('output', 'quiet')
+        # This is necessary because otherwise we get 'NoSectionError' even if
+        # the value is set in the defaults.
+        try:
+            self.config.add_section('output')
+        except ConfigParser.DuplicateSectionError:
+            pass
+
+        self.quiet = self.config.getboolean('output', 'quiet')
 
         self.username = self.config.get('login', 'username')
         self.password = self.config.get('login', 'password')
