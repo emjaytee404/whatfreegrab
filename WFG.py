@@ -86,18 +86,10 @@ class WhatFreeGrab(object):
 
         self.instance = SingleInstance(LOCK_FILE)
 
-        self.session = requests.session()
-        self.session.headers = WhatFreeGrab.headers
-
         self.config_file = config_file
         self.state_file = state_file
 
         self.config = ConfigParser.SafeConfigParser(WhatFreeGrab.defaults)
-
-        if os.path.exists(self.state_file):
-            self.state = pickle.load(open(self.state_file, 'rb'))
-        else:
-            self.state = {}
 
         if not os.path.exists(self.config_file):
             self._first_run()
@@ -106,10 +98,11 @@ class WhatFreeGrab(object):
 
         self.username = self.config.get('login', 'username')
         self.password = self.config.get('login', 'password')
-        self.target   = self.config.get('download', 'target')
 
         if not (self.username and self.password):
             self.quit("No username or password specified in configuration.")
+
+        self.target   = self.config.get('download', 'target')
 
         if not self.target:
             self.quit("No target directory specified in configuration.")
@@ -128,15 +121,21 @@ class WhatFreeGrab(object):
         self.template_music = string.Template(self.template_music)
         self.template_other = string.Template(self.template_other)
 
-        self.authkey = None
-        self.passkey = None
+        self.session = requests.session()
+        self.session.headers = WhatFreeGrab.headers
+
+        if os.path.exists(self.state_file):
+            self.state = pickle.load(open(self.state_file, 'rb'))
+        else:
+            self.state = {}
 
         if 'cookies' in self.state:
             self.session.cookies = self.state['cookies']
         else:
             self._login()
 
-        self.history = self.state.get('history', set())
+        self.authkey = None
+        self.passkey = None
 
         try:
             self._get_accountinfo()
@@ -147,6 +146,8 @@ class WhatFreeGrab(object):
                 self.quit("Unable to login. Check your configuration.")
             else:
                 self._get_accountinfo()
+
+        self.history = self.state.get('history', set())
 
     def _first_run(self):
         import getpass
