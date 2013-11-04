@@ -407,6 +407,7 @@ Enjoy!
                 print msg
             else:
                 print msg,
+            sys.stdout.flush()
 
     def quit(self, msg, error=False):
         self.message(msg, error)
