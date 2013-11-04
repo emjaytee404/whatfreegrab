@@ -327,22 +327,22 @@ Enjoy!
             torrent_id = torrent['torrentId']
 
             if torrent_id in self.history:
-                self.message("SKIP %s" % torrent_id)
+                self.message("-", newline=False)
                 continue
 
             if os.path.exists(filepath):
-                self.message("SKIP %s" % torrent_id)
+                self.message("!", newline=False)
                 continue
 
             data = self.get_torrent(torrent_id)
             if not data:
-                self.message("FAIL %s" % torrent_id)
+                self.message("*", newline=False)
                 continue
 
             with open(filepath, 'wb') as f:
                 f.write(data)
 
-            self.message("SAVE %s" % torrent_id)
+            self.message("+", newline=False)
 
             self.history.add(torrent_id)
 
@@ -388,9 +388,12 @@ Enjoy!
 
         return None
 
-    def message(self, msg, error=False):
+    def message(self, msg, error=False, newline=True):
         if (not self.quiet) or (error):
-            print msg
+            if newline:
+                print msg
+            else:
+                print msg,
 
     def quit(self, msg, error=False):
         self.message(msg, error)
@@ -425,6 +428,8 @@ Enjoy!
 
     def run(self):
 
+        self.message("Legend: (+) downloaded (-) skipped (*) file exists (!) error")
+
         page = 1
         while True:
 
@@ -436,6 +441,7 @@ Enjoy!
             if page > pages:
                 break
 
+        self.message("")
         self.quit("Process complete")
 
     def save_state(self):
