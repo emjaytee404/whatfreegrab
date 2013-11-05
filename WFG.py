@@ -322,14 +322,13 @@ Enjoy!
 
     def download_torrents(self):
 
-        self.message("Legend: (+) downloaded (-) skipped (*) file exists (!) error")
+        self.message("Legend: (+) downloaded (*) file exists (!) error")
 
         for torrent in self.torrent_list:
 
             torrent_id = torrent['torrentId']
 
             if torrent_id in self.history:
-                self.message("-", newline=False)
                 self.counter['skipped'] += 1
                 continue
 
