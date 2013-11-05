@@ -172,6 +172,7 @@ class WhatFreeGrab(object):
                 self._get_accountinfo()
 
         self.history = self.state.get('history', set())
+        self.torrent_list = []
 
     def _first_run(self):
         import getpass
@@ -313,9 +314,11 @@ Enjoy!
 
         return filename
 
-    def download_torrents(self, torrent_list):
+    def download_torrents(self):
 
-        for torrent in torrent_list:
+        self.message("Legend: (+) downloaded (-) skipped (*) file exists (!) error")
+
+        for torrent in self.torrent_list:
 
             torrent_id = torrent['torrentId']
 
@@ -353,8 +356,6 @@ Enjoy!
 
         response = self.request('browse', **{'freetorrent': 1, 'page': page})
 
-        torrent_list = []
-
         for group in response['results']:
             if 'torrents' in group:
                 for torrent in group.pop('torrents'):
@@ -364,12 +365,12 @@ Enjoy!
                         (group['artist'][:50], group['groupYear'], group['groupName'][:50],
                         torrent['media'], torrent['format'], torrent['encoding'])
                     }
-                    torrent_list.append(dict(group.items() + torrent.items() + yoink_format.items()))
+                    self.torrent_list.append(dict(group.items() + torrent.items() + yoink_format.items()))
             else:
                 yoink_format = {'yoinkFormat': group['groupName'][:100]}
-                torrent_list.append(dict(group.items() + yoink_format.items()))
+                self.torrent_list.append(dict(group.items() + yoink_format.items()))
 
-        return response['pages'], torrent_list
+        return response['pages']
 
     def get_torrent(self, torrent_id):
 
@@ -442,18 +443,23 @@ Enjoy!
 
     def run(self):
 
-        self.message("Legend: (+) downloaded (-) skipped (*) file exists (!) error")
+        self.message("Building torrent list:", newline=False)
 
         page = 1
         while True:
 
-            pages, torrent_list = self.get_freeleech(page)
+            pages = self.get_freeleech(page)
 
-            self.download_torrents(torrent_list)
+            self.message(".", newline=False)
 
             page +=1
             if page > pages:
                 break
+
+        self.message("")
+        self.message("Torrents found: %s" % len(self.torrent_list))
+
+        self.download_torrents()
 
         self.message("")
         self.quit("Process completed in: %s" % self.human_time(time.time() - self.start_time))
