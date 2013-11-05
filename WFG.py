@@ -90,6 +90,8 @@ class WhatFreeGrab(object):
         'template_other': "${groupName} [${torrentId}]"
     }
 
+    timeformat = "%Y-%m-%d %H:%M:%S"
+
     def __init__(self, config_file, state_file, lock_file):
 
         self.config_file = config_file
@@ -126,7 +128,7 @@ class WhatFreeGrab(object):
 
         self.message(WhatFreeGrab.IDENT)
         self.message("-" * len(WhatFreeGrab.IDENT))
-        self.message("Startup time: %s" % time.strftime("%c", time.localtime(self.start_time)))
+        self.message("Startup time: %s" % time.strftime(WhatFreeGrab.timeformat, time.localtime(self.start_time)))
 
         self.username = self.config.get('login', 'username')
         self.password = self.config.get('login', 'password')
