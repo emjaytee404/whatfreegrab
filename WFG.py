@@ -155,6 +155,16 @@ class WhatFreeGrab(object):
         self.template_music = string.Template(self.template_music)
         self.template_other = string.Template(self.template_other)
 
+        # Look out! No default values available from here on.
+        self.config._defaults.clear()
+        self.filters = []
+        for section in self.config.sections():
+            if section.startswith("filter-"):
+                self.filters.append(dict(self.config.items(section)))
+
+        if not self.filters:
+            self.filters = [{}]
+
         if 'cookies' in self.state:
             self.session.cookies = self.state['cookies']
         else:
@@ -361,9 +371,13 @@ Enjoy!
             self.state['history'] = self.history
             self.save_state()
 
-    def get_freeleech(self, page):
+    def get_freeleech(self, page, custom_params):
 
-        response = self.request('browse', **{'freetorrent': 1, 'page': page})
+        params = {'freetorrent': 1, 'page': page}
+
+        params.update(custom_params)
+
+        response = self.request('browse', **params)
 
         for group in response['results']:
             if 'torrents' in group:
@@ -454,16 +468,18 @@ Enjoy!
 
         self.message("Building torrent list:", newline=False)
 
-        page = 1
-        while True:
+        for params in self.filters:
 
-            pages = self.get_freeleech(page)
+            page = 1
+            while True:
 
-            self.message(".", newline=False)
+                pages = self.get_freeleech(page, params)
 
-            page +=1
-            if page > pages:
-                break
+                self.message(".", newline=False)
+
+                page +=1
+                if page > pages:
+                    break
 
         self.counter['total'] = len(self.torrent_list)
         self.message("")
