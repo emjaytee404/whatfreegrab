@@ -174,6 +174,10 @@ class WhatFreeGrab(object):
         self.history = self.state.get('history', set())
         self.torrent_list = []
 
+        self.counter = {}
+        for key in 'total', 'downloaded', 'skipped', 'exists', 'error':
+            self.counter[key] = 0
+
     def _first_run(self):
         import getpass
         import random
@@ -324,6 +328,7 @@ Enjoy!
 
             if torrent_id in self.history:
                 self.message("-", newline=False)
+                self.counter['skipped'] += 1
                 continue
 
             filename = self.create_filename(torrent)
@@ -335,17 +340,20 @@ Enjoy!
 
             if os.path.exists(filepath):
                 self.message("!", newline=False)
+                self.counter['exists'] += 1
                 continue
 
             data = self.get_torrent(torrent_id)
             if not data:
                 self.message("*", newline=False)
+                self.counter['error'] += 1
                 continue
 
             with open(filepath, 'wb') as f:
                 f.write(data)
 
             self.message("+", newline=False)
+            self.counter['downloaded'] += 1
 
             self.history.add(torrent_id)
 
@@ -456,11 +464,17 @@ Enjoy!
             if page > pages:
                 break
 
+        self.counter['total'] = len(self.torrent_list)
         self.message("")
-        self.message("Torrents found: %s" % len(self.torrent_list))
+        self.message("%s torrents found" % self.counter['total'])
 
         self.download_torrents()
 
+        self.message("")
+        self.message("%s torrents skipped" % self.counter['skipped'])
+        self.message("%s torrents already exist" % self.counter['exists'])
+        self.message("%s torrents unable to download" % self.counter['error'])
+        self.message("%s torrents downloaded" % self.counter['downloaded'])
         self.message("")
         self.quit("Process completed in: %s" % self.human_time(time.time() - self.start_time))
 
