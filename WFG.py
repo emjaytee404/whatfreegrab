@@ -488,10 +488,10 @@ Enjoy!
         self.download_torrents()
 
         self.message("")
-        self.message("%s torrents skipped" % self.counter['skipped'])
-        self.message("%s torrents already exist" % self.counter['exists'])
-        self.message("%s torrents unable to download" % self.counter['error'])
-        self.message("%s torrents downloaded" % self.counter['downloaded'])
+        self.message("%s skipped" % self.counter['skipped'])
+        self.message("%s exist" % self.counter['exists'])
+        self.message("%s errors" % self.counter['error'])
+        self.message("%s downloaded" % self.counter['downloaded'])
         self.message("")
         self.quit("Process completed in: %s" % self.human_time(time.time() - self.start_time))
 
