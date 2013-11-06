@@ -107,11 +107,6 @@ class WhatFreeGrab(object):
 
         self.config = ConfigParser.SafeConfigParser(WhatFreeGrab.defaults)
 
-        if os.path.exists(self.state_file):
-            self.state = pickle.load(open(self.state_file, 'rb'))
-        else:
-            self.state = {}
-
         if not os.path.exists(self.config_file):
             self._first_run()
 
@@ -164,6 +159,11 @@ class WhatFreeGrab(object):
 
         if not self.filters:
             self.filters = [{}]
+
+        if os.path.exists(self.state_file):
+            self.state = pickle.load(open(self.state_file, 'rb'))
+        else:
+            self.state = {}
 
         if 'cookies' in self.state:
             self.session.cookies = self.state['cookies']
@@ -313,8 +313,9 @@ Enjoy!
         if r.status_code != 302:
             raise WFGException
 
-        self.state['cookies'] = self.session.cookies
-        self.save_state()
+        if hasattr(self, 'state'):
+            self.state['cookies'] = self.session.cookies
+            self.save_state()
 
     def create_filename(self, torrent):
 
