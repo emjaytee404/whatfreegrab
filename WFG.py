@@ -471,10 +471,16 @@ Enjoy!
 
         for params in self.filters:
 
-            page = 1
+            page = pages = 1
             while True:
 
-                pages = self.get_freeleech(page, params)
+                # Sometimes the request() call inside get_freeleech() will
+                # throw an exception because the site is busy. In that case we
+                # just skip this page and we'll catch up on the next run.
+                try:
+                    pages = self.get_freeleech(page, params)
+                except WFGException:
+                    pass
 
                 self.message(".", newline=False)
 
