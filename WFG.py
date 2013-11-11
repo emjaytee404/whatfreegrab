@@ -89,6 +89,7 @@ class WhatFreeGrab(object):
 
     defaults = {
         'log_level': "INFO",
+        'max_torrents': "3000",
         'quiet': "false",
         'template_music': "${artist} - ${groupName} (${format} ${encoding}) [${torrentId}]",
         'template_other': "${groupName} [${torrentId}]"
@@ -161,6 +162,8 @@ class WhatFreeGrab(object):
 
         if not os.path.exists(self.target):
             os.makedirs(self.target)
+
+        self.max_torrents = self.config.getint('download', 'max_torrents')
 
         self.template_music = self.config.get('download', 'template_music')
         self.template_other = self.config.get('download', 'template_other')
@@ -517,6 +520,10 @@ Enjoy!
                     pass
 
                 self.message(".", newline=False)
+
+                if len(self.torrent_list) > self.max_torrents:
+                    self.message("")
+                    self.quit("Number of torrents found exceeds maximum limit of %s." % self.max_torrents, error=True)
 
                 page +=1
                 if page > pages:
