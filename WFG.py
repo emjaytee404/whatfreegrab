@@ -373,14 +373,14 @@ Enjoy!
 
             if os.path.exists(filepath):
                 self.log.info("File exists for torrent ID %s: '%s'", torrent_id, filepath)
-                self.message("!", newline=False)
+                self.message("*", newline=False)
                 self.counter['exists'] += 1
                 continue
 
             data = self.get_torrent(torrent_id)
             if not data:
                 self.log.info("Error downloading torrent ID %s", torrent_id)
-                self.message("*", newline=False)
+                self.message("!", newline=False)
                 self.counter['error'] += 1
                 continue
 
