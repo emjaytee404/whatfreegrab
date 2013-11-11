@@ -341,6 +341,13 @@ Enjoy!
             self.state['cookies'] = self.session.cookies
             self.save_state()
 
+    def add_to_history(self, torrent_id):
+
+        self.history.add(torrent_id)
+
+        self.state['history'] = self.history
+        self.save_state()
+
     def create_filename(self, torrent):
 
         if 'artist' in torrent:
@@ -377,6 +384,7 @@ Enjoy!
             if os.path.exists(filepath):
                 self.log.info("File exists for torrent ID %s: '%s'", torrent_id, filepath)
                 self.message("*", newline=False)
+                self.add_to_history(torrent_id)
                 self.counter['exists'] += 1
                 continue
 
@@ -394,10 +402,7 @@ Enjoy!
             self.message("+", newline=False)
             self.counter['downloaded'] += 1
 
-            self.history.add(torrent_id)
-
-            self.state['history'] = self.history
-            self.save_state()
+            self.add_to_history(torrent_id)
 
     def get_freeleech(self, page, custom_params):
 
