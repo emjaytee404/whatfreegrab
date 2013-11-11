@@ -472,11 +472,14 @@ Enjoy!
         else:
             log = self.log.info
 
+        exec_time = "Script finished in: %s" % self.human_time(time.time() - self.start_time)
+
         log(msg)
-        log("Exiting")
+        log(exec_time)
         log("-" * 40)
 
         self.message(msg, error)
+        self.message(exec_time)
         sys.exit(int(error))
 
     def request(self, action, **kwargs):
@@ -556,7 +559,7 @@ Enjoy!
         self.message("%s errors" % self.counter['error'])
         self.message("%s downloaded" % self.counter['downloaded'])
         self.message("")
-        self.quit("Process completed in: %s" % self.human_time(time.time() - self.start_time))
+        self.quit("Process complete.")
 
     def save_state(self):
 
