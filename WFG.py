@@ -39,7 +39,7 @@ except ImportError:
 
         import cStringIO as StringIO
 
-        requests_zip = "https://github.com/kennethreitz/requests/zipball/master"
+        requests_zip = "https://github.com/kennethreitz/requests/archive/v2.0.1.zip"
 
         data = urllib2.urlopen(requests_zip)
         data = StringIO.StringIO(data.read())
