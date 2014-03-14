@@ -113,7 +113,7 @@ class WhatFreeGrab(object):
         self.session = requests.session()
         self.session.headers = WhatFreeGrab.headers
 
-        self.config = ConfigParser.SafeConfigParser(WhatFreeGrab.defaults)
+        self.config = ConfigParser.RawConfigParser(WhatFreeGrab.defaults)
 
         if not os.path.exists(self.config_file):
             self._first_run()
@@ -218,7 +218,7 @@ class WhatFreeGrab(object):
         import getpass
         import random
 
-        config = ConfigParser.SafeConfigParser()
+        config = ConfigParser.RawConfigParser()
         rand_minutes = str(random.randrange(60)).zfill(2)
         script_path = os.path.join(SCRIPT_DIR, sys.argv[0])
 
