@@ -14,6 +14,7 @@ import ConfigParser
 import cPickle as pickle
 
 import requests
+import whatapi
 
 SCRIPT_DIR  = os.path.dirname(os.path.realpath(sys.argv[0]))
 CONFIG_FILE = os.path.join(SCRIPT_DIR, 'wfg.cfg')
@@ -31,16 +32,6 @@ class WhatFreeGrab(object):
 
     INVALID_CHARS = r'\/:*<>|?"'
     HTML_RE = re.compile("&#?\w+;")
-
-    headers = {
-        'Content-type': "application/x-www-form-urlencoded",
-        'Accept-Charset': "utf-8",
-        'User-Agent': IDENT
-    }
-
-    loginpage   = "https://what.cd/login.php"
-    ajaxpage    = "https://what.cd/ajax.php"
-    torrentpage = "https://what.cd/torrents.php"
 
     defaults = {
         'log_level': "INFO",
@@ -64,9 +55,6 @@ class WhatFreeGrab(object):
         self.instance = SingleInstance(self.lock_file)
 
         self.start_time = time.time()
-
-        self.session = requests.session()
-        self.session.headers = WhatFreeGrab.headers
 
         self.config = ConfigParser.RawConfigParser(WhatFreeGrab.defaults)
 
@@ -141,23 +129,13 @@ class WhatFreeGrab(object):
         else:
             self.state = {}
 
-        if 'cookies' in self.state:
-            self.session.cookies = self.state['cookies']
-        else:
-            self._login()
-
-        self.authkey = None
-        self.passkey = None
-
+        cookies = self.state.get('cookies')
         try:
-            self._get_accountinfo()
-        except WFGException: # Expired/invalid cookie?
-            try:
-                self._login()
-            except WFGException:
-                self.quit("Unable to login. Check your configuration.", error=True)
-            else:
-                self._get_accountinfo()
+            self.what = whatapi.WhatAPI(config_file=self.config_file, cookies=cookies)
+        except whatapi.whatapi.LoginException:
+            self.quit("Unable to login. Check your configuration.", error=True)
+        self.state['cookies'] = self.what.session.cookies
+        self.save_state()
 
         self.history = self.state.get('history', set())
         self.torrent_list = []
@@ -165,29 +143,6 @@ class WhatFreeGrab(object):
         self.counter = {}
         for key in 'total', 'downloaded', 'skipped', 'exists', 'error':
             self.counter[key] = 0
-
-    def _get_accountinfo(self):
-
-        response = self.request('index')
-
-        self.authkey = response['authkey']
-        self.passkey = response['passkey']
-
-    def _login(self):
-
-        data = {'username': self.username,
-                'password': self.password,
-                'keeplogged': 1,
-                'login': "Login"
-        }
-
-        r = self.session.post(WhatFreeGrab.loginpage, data=data, allow_redirects=False)
-        if r.status_code != 302:
-            raise WFGException
-
-        if hasattr(self, 'state'):
-            self.state['cookies'] = self.session.cookies
-            self.save_state()
 
     def add_to_history(self, torrent_id):
 
@@ -236,7 +191,7 @@ class WhatFreeGrab(object):
                 self.counter['exists'] += 1
                 continue
 
-            data = self.get_torrent(torrent_id)
+            data = self.what.get_torrent(torrent_id)
             if not data:
                 self.log.info("Error downloading torrent ID %s", torrent_id)
                 self.message("!", newline=False)
@@ -258,9 +213,9 @@ class WhatFreeGrab(object):
 
         params.update(custom_params)
 
-        response = self.request('browse', **params)
+        response = self.what.request('browse', **params)
 
-        for group in response['results']:
+        for group in response['response']['results']:
             if 'torrents' in group:
                 for torrent in group.pop('torrents'):
                     yoink_format = {
@@ -274,24 +229,7 @@ class WhatFreeGrab(object):
                 yoink_format = {'yoinkFormat': group['groupName'][:100]}
                 self.torrent_list.append(dict(group.items() + yoink_format.items()))
 
-        return response['pages']
-
-    def get_torrent(self, torrent_id):
-
-        params = {'action': 'download', 'id': torrent_id}
-
-        if self.authkey:
-            params['authkey'] = self.authkey
-            params['torrent_pass'] = self.passkey
-
-        r = self.session.get(WhatFreeGrab.torrentpage, params=params, allow_redirects=False)
-
-        time.sleep(2) # Be nice.
-
-        if r.status_code == 200 and 'application/x-bittorrent' in r.headers['content-type']:
-            return r.content
-
-        return None
+        return response['response']['pages']
 
     def human_time(self, t):
         # Yes, I know about datetime.datetime, but this was fun.
@@ -330,27 +268,6 @@ class WhatFreeGrab(object):
         self.message(exec_time)
         sys.exit(int(error))
 
-    def request(self, action, **kwargs):
-
-        params = {'action': action}
-
-        if self.authkey:
-            params['auth'] = self.authkey
-
-        params.update(kwargs)
-
-        r = self.session.get(WhatFreeGrab.ajaxpage, params=params, allow_redirects=False)
-
-        time.sleep(2) # Be nice.
-
-        try:
-            json_response = r.json()
-            if json_response['status'] != "success":
-                raise WFGException
-            return json_response['response']
-        except ValueError:
-            raise WFGException
-
     def remove_invalid_chars(self, item):
 
         item = "".join(c in WhatFreeGrab.INVALID_CHARS and " " or c for c in item)
@@ -372,7 +289,7 @@ class WhatFreeGrab(object):
                 # just skip this page and we'll catch up on the next run.
                 try:
                     pages = self.get_freeleech(page, params)
-                except WFGException:
+                except whatapi.whatapi.RequestException:
                     pass
 
                 self.message(".", newline=False)
@@ -391,7 +308,6 @@ class WhatFreeGrab(object):
 
         self.message("")
         self.message("%s torrents found" % self.counter['total'])
-
 
         self.log.info("Downloading torrents")
         self.download_torrents()
