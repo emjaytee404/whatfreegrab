@@ -58,7 +58,10 @@ class WhatFreeGrab(object):
 
         self.config = ConfigParser.RawConfigParser(WhatFreeGrab.defaults)
 
-        self.config.read(self.config_file)
+        try:
+            self.config.read(self.config_file)
+        except:
+            self.quit("Unable to read configuration file.", error=True)
 
         # This is necessary because otherwise we get 'NoSectionError' even if
         # the value is set in the defaults.
@@ -124,9 +127,9 @@ class WhatFreeGrab(object):
         if not self.filters:
             self.filters = [{}]
 
-        if os.path.exists(self.state_file):
+        try:
             self.state = pickle.load(open(self.state_file, 'rb'))
-        else:
+        except:
             self.state = {}
 
         cookies = self.state.get('cookies')
