@@ -13,58 +13,13 @@ import time
 import ConfigParser
 import cPickle as pickle
 
+import requests
+
 SCRIPT_DIR  = os.path.dirname(os.path.realpath(sys.argv[0]))
 CONFIG_FILE = os.path.join(SCRIPT_DIR, 'wfg.cfg')
 STATE_FILE  = os.path.join(SCRIPT_DIR, 'wfg.dat')
 LOCK_FILE   = os.path.join(SCRIPT_DIR, 'wfg.pid')
 LOG_FILE    = os.path.join(SCRIPT_DIR, 'wfg.log')
-
-try:
-    import requests
-except ImportError:
-    def download_requests():
-
-        print "It seems you are missing the required 'requests' module."
-        print "Press ENTER to automatically download and extract this module."
-        print "Press Ctrl+C if you wish to cancel and install it manually."
-        try:
-            raw_input()
-        except KeyboardInterrupt:
-            print "You must install the 'requests' module before attempting to run this script."
-            print "Visit http://docs.python-requests.org/en/latest/user/install/ for instructions."
-            sys.exit(1)
-
-        import urllib2
-        import zipfile
-
-        import cStringIO as StringIO
-
-        requests_zip = "https://github.com/kennethreitz/requests/archive/v2.0.1.zip"
-
-        data = urllib2.urlopen(requests_zip)
-        data = StringIO.StringIO(data.read())
-        data = zipfile.ZipFile(data)
-
-        filelist = data.namelist()
-        root = filelist[0]
-        dirname = os.path.join(root, 'requests')
-        filelist = [filename for filename in filelist if filename.startswith(dirname)]
-
-        cwd = os.getcwd()
-
-        os.chdir(SCRIPT_DIR)
-
-        data.extractall(members=filelist)
-
-        os.rename(dirname, 'requests')
-        os.rmdir(root)
-
-        os.chdir(cwd)
-
-        print "Extraction complete. Will attempt to continue..."
-
-    download_requests()
-    import requests
 
 class WFGException(Exception): pass
 
@@ -114,9 +69,6 @@ class WhatFreeGrab(object):
         self.session.headers = WhatFreeGrab.headers
 
         self.config = ConfigParser.RawConfigParser(WhatFreeGrab.defaults)
-
-        if not os.path.exists(self.config_file):
-            self._first_run()
 
         self.config.read(self.config_file)
 
@@ -213,110 +165,6 @@ class WhatFreeGrab(object):
         self.counter = {}
         for key in 'total', 'downloaded', 'skipped', 'exists', 'error':
             self.counter[key] = 0
-
-    def _first_run(self):
-        import getpass
-        import random
-
-        config = ConfigParser.RawConfigParser()
-        rand_minutes = str(random.randrange(60)).zfill(2)
-        script_path = os.path.join(SCRIPT_DIR, sys.argv[0])
-
-        message = """
-Hey there! It looks like you are running this script for the first time.
-
-Let's go ahead and create a new configuration file."""
-
-        print message
-
-        while True:
-
-            print "\nFirst we will need your What.CD username and password."
-
-            username = raw_input("Enter your username: ")
-            if not username:
-                continue
-
-            password = getpass.getpass("Enter your password (will not be shown on screen): ")
-            if not password:
-                continue
-
-            print "\nGot it. The script will try to login with this info...",
-
-            self.username = username
-            self.password = password
-
-            try:
-                self._login()
-            except WFGException:
-                print "failed. :("
-                print "Let's try again."
-                continue
-            else:
-                print "success!"
-                break
-
-        config.add_section('login')
-        config.set('login', 'username', username)
-        config.set('login', 'password', password)
-
-        while True:
-
-            print "\nThe directory where the script downloads .torrent files is called the target."
-
-            target = raw_input("Enter target: ")
-
-            full_target = os.path.realpath(os.path.expanduser(target))
-
-            if not os.path.exists(full_target):
-                try:
-                    os.makedirs(full_target)
-                except:
-                    print "Unable to access the '%s' directory." % target
-                    print "Let's try again."
-                    continue
-                else:
-                    print "\nLooks good."
-                    break
-            else:
-                print "\nLooks good."
-                break
-
-        config.add_section('download')
-        config.set('download', 'target', full_target)
-
-        print "\nFinally, do you want to use the same filename format that Yoink! used?"
-        print "See README for the default used otherwise, as well as other formats available."
-        if raw_input("Use Yoink! filename format? [Y/N] ").lower().startswith("y"):
-            config.set('download', 'template_music', "${torrentId}. ${yoinkFormat}")
-            config.set('download', 'template_other', "${torrentId} ${yoinkFormat}")
-        else:
-            # Use defaults, no need to save them in config.
-            pass
-
-        with open(self.config_file, 'w') as f:
-            config.write(f)
-
-        message = """
-Configuration file created successfully.
-
--------------------------------------------------------------------------------
-
-If you plan on adding the script to your cron file, consider using the
-following line:
-
-%s * * * * python %s
-
-The minutes field above has been randomly-determined.
-
-Spreading the scheduling like this helps avoid having a bunch of scripts all
-hitting the server every hour on the hour.
-
-Enjoy!
-""" % (rand_minutes, script_path)
-
-        print message
-        raw_input("Press ENTER to continue... ")
 
     def _get_accountinfo(self):
 
