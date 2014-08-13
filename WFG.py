@@ -14,11 +14,6 @@ import cPickle as pickle
 import requests
 import whatapi
 
-SCRIPT_DIR  = os.path.dirname(os.path.realpath(sys.argv[0]))
-CONFIG_FILE = os.path.join(SCRIPT_DIR, 'wfg.cfg')
-STATE_FILE  = os.path.join(SCRIPT_DIR, 'wfg.dat')
-LOCK_FILE   = os.path.join(SCRIPT_DIR, 'wfg.pid')
-
 class WFGException(Exception): pass
 
 class WhatFreeGrab(object):
@@ -27,6 +22,11 @@ class WhatFreeGrab(object):
 
     INVALID_CHARS = r'\/:*<>|?"'
     HTML_RE = re.compile("&#?\w+;")
+
+    SCRIPT_DIR  = os.path.dirname(os.path.realpath(sys.argv[0]))
+    CONFIG_FILE = os.path.join(SCRIPT_DIR, 'wfg.cfg')
+    STATE_FILE  = os.path.join(SCRIPT_DIR, 'wfg.dat')
+    LOCK_FILE   = os.path.join(SCRIPT_DIR, 'wfg.pid')
 
     defaults = {
         'max_torrents': "3000",
@@ -39,11 +39,11 @@ class WhatFreeGrab(object):
 
     log_size = 10 * 1024 * 1024 # 10MB
 
-    def __init__(self, config_file, state_file, lock_file):
+    def __init__(self, config_file=None, state_file=None, lock_file=None):
 
-        self.config_file = config_file
-        self.state_file  = state_file
-        self.lock_file   = lock_file
+        self.config_file = config_file or WhatFreeGrab.CONFIG_FILE
+        self.state_file  = state_file or WhatFreeGrab.STATE_FILE
+        self.lock_file   = lock_file or WhatFreeGrab.LOCK_FILE
 
         self.instance = SingleInstance(self.lock_file)
 
@@ -365,4 +365,4 @@ class SingleInstance:
             sys.exit(-1)
 
 if __name__ == '__main__':
-    WhatFreeGrab(config_file=CONFIG_FILE, state_file=STATE_FILE, lock_file=LOCK_FILE).run()
+    WhatFreeGrab().run()
