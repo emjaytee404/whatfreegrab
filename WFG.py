@@ -193,16 +193,9 @@ class WhatFreeGrab(object):
         for group in response['response']['results']:
             if 'torrents' in group:
                 for torrent in group.pop('torrents'):
-                    yoink_format = {
-                        'yoinkFormat':
-                        "%s - %s - %s (%s - %s - %s)" %
-                        (group['artist'][:50], group['groupYear'], group['groupName'][:50],
-                        torrent['media'], torrent['format'], torrent['encoding'])
-                    }
-                    self.torrent_list.append(dict(group.items() + torrent.items() + yoink_format.items()))
+                    self.torrent_list.append(dict(group.items() + torrent.items()))
             else:
-                yoink_format = {'yoinkFormat': group['groupName'][:100]}
-                self.torrent_list.append(dict(group.items() + yoink_format.items()))
+                self.torrent_list.append(dict(group.items()))
 
         return response['response']['pages']
 

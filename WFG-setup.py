@@ -94,15 +94,6 @@ def setup():
     config.add_section('download')
     config.set('download', 'target', full_target)
 
-    print "\nFinally, do you want to use the same filename format that Yoink! used?"
-    print "See README for the default used otherwise, as well as other formats available."
-    if raw_input("Use Yoink! filename format? [Y/N] ").lower().startswith("y"):
-        config.set('download', 'template_music', "${torrentId}. ${yoinkFormat}")
-        config.set('download', 'template_other', "${torrentId} ${yoinkFormat}")
-    else:
-        # Use defaults, no need to save them in config.
-        pass
-
     rand_minutes = str(random.randrange(60)).zfill(2)
     script_path = os.path.join(SCRIPT_DIR, sys.argv[0])
 
