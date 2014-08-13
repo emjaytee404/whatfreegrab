@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import htmlentitydefs
-import logging
-import logging.handlers
 import os
 import re
 import string
@@ -20,7 +18,6 @@ SCRIPT_DIR  = os.path.dirname(os.path.realpath(sys.argv[0]))
 CONFIG_FILE = os.path.join(SCRIPT_DIR, 'wfg.cfg')
 STATE_FILE  = os.path.join(SCRIPT_DIR, 'wfg.dat')
 LOCK_FILE   = os.path.join(SCRIPT_DIR, 'wfg.pid')
-LOG_FILE    = os.path.join(SCRIPT_DIR, 'wfg.log')
 
 class WFGException(Exception): pass
 
@@ -34,7 +31,6 @@ class WhatFreeGrab(object):
     HTML_RE = re.compile("&#?\w+;")
 
     defaults = {
-        'log_level': "INFO",
         'max_torrents': "3000",
         'quiet': "false",
         'template_music': "${artist} - ${groupName} (${format} ${encoding}) [${torrentId}]",
@@ -45,12 +41,11 @@ class WhatFreeGrab(object):
 
     log_size = 10 * 1024 * 1024 # 10MB
 
-    def __init__(self, config_file, state_file, lock_file, log_file):
+    def __init__(self, config_file, state_file, lock_file):
 
         self.config_file = config_file
         self.state_file  = state_file
         self.lock_file   = lock_file
-        self.log_file    = log_file
 
         self.instance = SingleInstance(self.lock_file)
 
@@ -71,20 +66,6 @@ class WhatFreeGrab(object):
             pass
 
         self.quiet = self.config.getboolean('output', 'quiet')
-        self.log_level = self.config.get('output', 'log_level')
-
-        numeric_level = getattr(logging, self.log_level.upper(), None)
-        if not isinstance(numeric_level, int):
-            raise ValueError('Invalid log level: %s' % self.log_level)
-
-        self.log = logging.getLogger()
-        self.log.setLevel(logging.INFO)
-        handler = logging.handlers.RotatingFileHandler(filename=log_file, maxBytes=WhatFreeGrab.log_size, encoding="utf-8")
-        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s", datefmt=WhatFreeGrab.timeformat)
-        handler.setFormatter(formatter)
-        self.log.addHandler(handler)
-
-        self.log.info("%s starting up", WhatFreeGrab.IDENT)
 
         self.message(WhatFreeGrab.IDENT)
         self.message("-" * len(WhatFreeGrab.IDENT))
@@ -188,24 +169,21 @@ class WhatFreeGrab(object):
                 filepath = filepath[:123] + "~" + filepath[-123:]
 
             if os.path.exists(filepath):
-                self.log.info("File exists for torrent ID %s: '%s'", torrent_id, filepath)
-                self.message("*", newline=False)
+                self.message("* %s" % filepath)
                 self.add_to_history(torrent_id)
                 self.counter['exists'] += 1
                 continue
 
             data = self.what.get_torrent(torrent_id)
             if not data:
-                self.log.info("Error downloading torrent ID %s", torrent_id)
-                self.message("!", newline=False)
+                self.message("! [%s]" % torrent_id)
                 self.counter['error'] += 1
                 continue
 
             with open(filepath, 'wb') as f:
                 f.write(data)
 
-            self.log.info("Downloaded torrent ID %s: '%s'", torrent_id, filepath)
-            self.message("+", newline=False)
+            self.message("+ %s" % filepath)
             self.counter['downloaded'] += 1
 
             self.add_to_history(torrent_id)
@@ -256,16 +234,8 @@ class WhatFreeGrab(object):
             sys.stdout.flush()
 
     def quit(self, msg, error=False):
-        if error:
-            log = self.log.critical
-        else:
-            log = self.log.info
 
         exec_time = "Script finished in: %s" % self.human_time(time.time() - self.start_time)
-
-        log(msg)
-        log(exec_time)
-        log("-" * 40)
 
         self.message(msg, error)
         self.message(exec_time)
@@ -280,7 +250,6 @@ class WhatFreeGrab(object):
     def run(self):
 
         self.message("Building torrent list:", newline=False)
-        self.log.info("Building torrent list")
 
         for params in self.filters:
 
@@ -307,18 +276,10 @@ class WhatFreeGrab(object):
 
         self.counter['total'] = len(self.torrent_list)
 
-        self.log.info("%s torrents found", self.counter['total'])
-
         self.message("")
         self.message("%s torrents found" % self.counter['total'])
 
-        self.log.info("Downloading torrents")
         self.download_torrents()
-
-        self.log.info("%s skipped", self.counter['skipped'])
-        self.log.info("%s exist", self.counter['exists'])
-        self.log.info("%s errors", self.counter['error'])
-        self.log.info("%s downloaded", self.counter['downloaded'])
 
         self.message("")
         self.message("%s skipped" % self.counter['skipped'])
@@ -406,4 +367,4 @@ class SingleInstance:
             sys.exit(-1)
 
 if __name__ == '__main__':
-    WhatFreeGrab(config_file=CONFIG_FILE, state_file=STATE_FILE, lock_file=LOCK_FILE, log_file=LOG_FILE).run()
+    WhatFreeGrab(config_file=CONFIG_FILE, state_file=STATE_FILE, lock_file=LOCK_FILE).run()
