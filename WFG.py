@@ -35,10 +35,6 @@ class WhatFreeGrab(object):
         'template_other': "${groupName} [${torrentId}]"
     }
 
-    timeformat = "%Y-%m-%d %H:%M:%S"
-
-    log_size = 10 * 1024 * 1024 # 10MB
-
     def __init__(self, config_file=None, state_file=None, lock_file=None):
 
         self.config_file = config_file or WhatFreeGrab.CONFIG_FILE
@@ -67,7 +63,7 @@ class WhatFreeGrab(object):
 
         self.message(WhatFreeGrab.IDENT)
         self.message("-" * len(WhatFreeGrab.IDENT))
-        self.message("Startup time: %s" % time.strftime(WhatFreeGrab.timeformat, time.localtime(self.start_time)))
+        self.message("Startup time: %s" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(self.start_time)))
 
         self.username = self.config.get('login', 'username')
         self.password = self.config.get('login', 'password')
