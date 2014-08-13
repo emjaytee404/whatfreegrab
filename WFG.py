@@ -23,9 +23,7 @@ class WFGException(Exception): pass
 
 class WhatFreeGrab(object):
 
-    NAME  = "WhatFreeGrab"
-    VER   = "0.1"
-    IDENT = "%s v%s" % (NAME, VER)
+    IDENT = "WhatFreeGrab v0.1"
 
     INVALID_CHARS = r'\/:*<>|?"'
     HTML_RE = re.compile("&#?\w+;")
