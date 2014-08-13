@@ -170,7 +170,7 @@ class WhatFreeGrab(object):
 
             data = self.what.get_torrent(torrent_id)
             if not data:
-                self.message("! [%s]" % torrent_id)
+                self.message("! %s" % filepath)
                 self.counter['error'] += 1
                 continue
 
