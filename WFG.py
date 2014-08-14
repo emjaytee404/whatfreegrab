@@ -83,6 +83,8 @@ class WhatFreeGrab(object):
 
         self.max_torrents = self.config.getint('download', 'max_torrents')
 
+        self.skip_downloads = '--skip-downloads' in sys.argv
+
         self.template_music = self.config.get('download', 'template_music')
         self.template_other = self.config.get('download', 'template_other')
 
@@ -151,6 +153,11 @@ class WhatFreeGrab(object):
             torrent_id = torrent['torrentId']
 
             if torrent_id in self.state['history']:
+                self.counter['skipped'] += 1
+                continue
+
+            if self.skip_downloads:
+                self.add_to_history(torrent_id)
                 self.counter['skipped'] += 1
                 continue
 
