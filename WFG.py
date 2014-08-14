@@ -115,7 +115,9 @@ class WhatFreeGrab(object):
         self.state['cookies'] = self.what.session.cookies
         self.save_state()
 
-        self.history = self.state.get('history', set())
+        if not 'history' in self.state:
+            self.state['history'] = set()
+
         self.torrent_list = []
 
         self.counter = {}
@@ -123,10 +125,7 @@ class WhatFreeGrab(object):
             self.counter[key] = 0
 
     def add_to_history(self, torrent_id):
-
-        self.history.add(torrent_id)
-
-        self.state['history'] = self.history
+        self.state['history'].add(torrent_id)
         self.save_state()
 
     def create_filename(self, torrent):
@@ -151,7 +150,7 @@ class WhatFreeGrab(object):
 
             torrent_id = torrent['torrentId']
 
-            if torrent_id in self.history:
+            if torrent_id in self.state['history']:
                 self.counter['skipped'] += 1
                 continue
 
