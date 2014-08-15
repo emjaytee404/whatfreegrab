@@ -37,6 +37,10 @@ def setup():
             print MESSAGES['module_error'] % "whatapi"
             raise
 
+    if not sys.getfilesystemencoding().upper() in ('UTF-8', 'MBCS'):
+        print MESSAGES['filesystem_error']
+        sys.exit(1)
+
     config = ConfigParser.RawConfigParser()
 
     while True:
@@ -155,6 +159,14 @@ You must install the '%s module before trying to run this script.
 MESSAGES['module_error'] = """
 An error ocurred trying to download/extract the '%s' module.
 Please try to run this script again.
+"""
+MESSAGES['filesystem_error'] = """
+Your filesystem encoding is not able to handle Unicode filenames. This means
+that files containing non-Latin characters in their names will not be able to
+be saved. Please read your system's documentation for changing the encoding
+used to save filenames.
+
+On Linux, this is accomplished by changing your locale to one supporting UTF-8.
 """
 MESSAGES['cron'] = """
 -------------------------------------------------------------------------------
