@@ -28,11 +28,11 @@ def setup():
             raise
 
     try:
-        import whatapi
+        from whatapi import whatapi
     except ImportError:
         try:
             download_module('whatapi', 'https://github.com/emjaytee404/whatapi/archive/stable.zip')
-            import whatapi
+            from whatapi import whatapi
         except:
             print MESSAGES['module_error'] % "whatapi"
             raise
