@@ -99,7 +99,7 @@ def setup():
 
     print MESSAGES['cron'] % (rand_minutes, script_path)
 
-    with open(self.config_file, 'w') as f:
+    with open(CONFIG_FILE, 'w') as f:
         config.write(f)
 
     print MESSAGES['finished'] % CONFIG_FILE
