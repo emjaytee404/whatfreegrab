@@ -95,7 +95,7 @@ def setup():
     config.set('download', 'target', full_target)
 
     rand_minutes = str(random.randrange(60)).zfill(2)
-    script_path = os.path.join(SCRIPT_DIR, sys.argv[0])
+    script_path = os.path.join(SCRIPT_DIR, "WFG.py")
 
     print MESSAGES['cron'] % (rand_minutes, script_path)
 
