@@ -92,7 +92,7 @@ def setup():
             break
 
     config.add_section('download')
-    config.set('download', 'target', full_target)
+    config.set('download', 'target', target)
 
     rand_minutes = str(random.randrange(60)).zfill(2)
     script_path = os.path.join(SCRIPT_DIR, "WFG.py")
