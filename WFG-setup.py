@@ -17,25 +17,40 @@ CONFIG_FILE = os.path.join(SCRIPT_DIR, 'wfg.cfg')
 def setup():
     print MESSAGES['welcome']
 
+    pause()
+
+    print "First, let's setup the WhatFreeGrab dependencies."
+    print ""
+
     try:
+        print "Looking for Requests module...",
         import requests
     except ImportError:
+        print "failed. :("
         try:
             download_module("requests", "https://github.com/kennethreitz/requests/archive/v2.0.1.zip")
             import requests
         except:
             print MESSAGES['module_error'] % "requests"
             raise
+    else:
+        print "success!"
 
     try:
+        print "Looking for WhatAPI module...",
         from whatapi import whatapi
     except ImportError:
+        print "failed. :("
         try:
             download_module('whatapi', 'https://github.com/emjaytee404/whatapi/archive/stable.zip')
             from whatapi import whatapi
         except:
             print MESSAGES['module_error'] % "whatapi"
             raise
+    else:
+        print "success!"
+
+    pause()
 
     if not sys.getfilesystemencoding().upper() in ('UTF-8', 'MBCS'):
         print MESSAGES['filesystem_error']
@@ -45,7 +60,7 @@ def setup():
 
     while True:
 
-        print "\nFirst we will need your What.CD username and password."
+        print "Next we will need your What.CD username and password."
 
         username = raw_input("Enter your username: ")
         if not username:
@@ -55,7 +70,8 @@ def setup():
         if not password:
             continue
 
-        print "\nGot it. The script will try to login with this info...",
+        print ""
+        print "Attempting login...",
 
         try:
             whatapi.WhatAPI(username=username, password=password).logout()
@@ -73,9 +89,11 @@ def setup():
     config.set('login', 'username', username)
     config.set('login', 'password', password)
 
+    pause()
+
     while True:
 
-        print "\nThe directory where the script downloads .torrent files is called the target."
+        print "The directory where the script downloads torrent files is called the target."
 
         target = raw_input("Enter target: ")
 
@@ -89,26 +107,47 @@ def setup():
                 print "Let's try again."
                 continue
             else:
-                print "\nLooks good."
+                print ""
+                print "Looks good."
                 break
         else:
-            print "\nLooks good."
+            print ""
+            print "Looks good."
             break
 
     config.add_section('download')
     config.set('download', 'target', target)
 
-    rand_minutes = str(random.randrange(60)).zfill(2)
-    script_path = os.path.join(SCRIPT_DIR, "WFG.py")
-
-    print MESSAGES['cron'] % (rand_minutes, script_path)
+    pause()
 
     with open(CONFIG_FILE, 'w') as f:
         config.write(f)
 
-    print MESSAGES['finished'] % CONFIG_FILE
+    print MESSAGES['config-finished'] % CONFIG_FILE
 
-    raw_input("Press ENTER to exit.")
+    pause()
+
+    script_path = os.path.join(SCRIPT_DIR, "WFG.py")
+
+    print MESSAGES['skip-downloads'] % script_path
+
+    pause()
+
+    rand_minutes = str(random.randrange(60)).zfill(2)
+
+    print MESSAGES['cron'] % (rand_minutes, script_path)
+
+    pause()
+
+    print MESSAGES['finished']
+
+    pause("Press ENTER to exit. ")
+
+def pause(msg="Press ENTER to continue... "):
+    print ""
+    raw_input(msg)
+    print "-" * 80
+    print ""
 
 def download_module(module_name, module_url):
     print MESSAGES['module_missing'] % module_name
@@ -116,7 +155,9 @@ def download_module(module_name, module_url):
         raw_input()
     except KeyboardInterrupt:
         print MESSAGES['module_cancelled'] % module_name
-        sys.exit(1)
+        raise
+
+    print "Downloading... ",
 
     data = urllib2.urlopen(module_url)
     data = StringIO.StringIO(data.read())
@@ -131,6 +172,8 @@ def download_module(module_name, module_url):
 
     os.chdir(SCRIPT_DIR)
 
+    print "extracting... ",
+
     data.extractall(members=filelist)
 
     os.rename(dirname, module_name)
@@ -138,23 +181,25 @@ def download_module(module_name, module_url):
 
     os.chdir(cwd)
 
+    print "done!"
+
 
 MESSAGES = {}
 
 MESSAGES['welcome'] = """
-Hey there! This little program will attempt to help you setup WhatFreeGrab.
+WhatFreeGrab Setup
+------------------
+
+Hey there! This little program will help you setup WhatFreeGrab.
 
 You will need your What.CD username and password, so have those ready.
-
-First, let's setup the WFG dependencies.
 """
 MESSAGES['module_missing'] = """
 It seems you are missing the '%s' module.
 Press ENTER to automatically download and extract this module.
-Press Ctrl+C if you wish to cancel and install it manually.
 """
 MESSAGES['module_cancelled'] = """
-You must install the '%s module before trying to run this script.
+You must install the '%s' module before trying to run this script.
 """
 MESSAGES['module_error'] = """
 An error ocurred trying to download/extract the '%s' module.
@@ -168,13 +213,25 @@ used to save filenames.
 
 On Linux, this is accomplished by changing your locale to one supporting UTF-8.
 """
-MESSAGES['cron'] = """
--------------------------------------------------------------------------------
+MESSAGES['config-finished'] = """
+Configuration file created successfully.
 
+You can re-run this setup file at any time to change the settings, or you can
+change the values directly. The config file is located at:
+
+%s
+"""
+MESSAGES['skip-downloads'] = """
+If you want to run the script and have it record all current freeleech torrents
+without downloading any of them you can do so like this:
+
+python2 %s --skip-downloads
+"""
+MESSAGES['cron'] = """
 If you plan on adding the script to your cron file, consider using the
 following line:
 
-%s * * * * python %s
+%s * * * * python2 %s
 
 The minutes field above has been selected at random.
 
@@ -182,22 +239,16 @@ Spreading the scheduling like this helps avoid having a bunch of scripts all
 hitting the server every hour on the hour.
 """
 MESSAGES['finished'] = """
-Configuration file created successfully.
-
-You can re-run this setup file at any time to change the settings, or you can
-change the values directly. The config file is located at:
-
-%s
+The setup is now complete.
 
 Enjoy!
-
---
-Em
 """
 
 if __name__ == '__main__':
     try:
         setup()
+    except KeyboardInterrupt:
+        print "Setup process had been cancelled."
     except:
         print "Unhandled error has occurred:"
         raise
