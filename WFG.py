@@ -169,21 +169,21 @@ class WhatFreeGrab(object):
                 filepath = filepath[:123] + "~" + filepath[-123:]
 
             if os.path.exists(filepath):
-                self.message("* %s" % filepath)
+                self.message("* [%s]" % torrent_id)
                 self.add_to_history(torrent_id)
                 self.counter['exists'] += 1
                 continue
 
             data = self.what.get_torrent(torrent_id)
             if not data:
-                self.message("! %s" % filepath)
+                self.message("! [%s]" % torrent_id)
                 self.counter['error'] += 1
                 continue
 
             with open(filepath, 'wb') as f:
                 f.write(data)
 
-            self.message("+ %s" % filepath)
+            self.message("+ [%s]" % torrent_id)
             self.counter['downloaded'] += 1
 
             self.add_to_history(torrent_id)
