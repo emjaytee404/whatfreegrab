@@ -54,5 +54,5 @@ For music torrents, the following fields are available:
 For non-music torrents, the following fields are available:
 
 `canUseToken` `category` `fileCount` `groupId` `groupName` `groupTime` `hasSnatched`
-`isFreeleech, isNeutralLeech` `isPersonalFreeleech` `leechers,` `seeders` `size`
+`isFreeleech` `isNeutralLeech` `isPersonalFreeleech` `leechers` `seeders` `size`
 `snatches` `tags` `torrentId`
