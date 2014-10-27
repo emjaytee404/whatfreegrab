@@ -14,7 +14,7 @@ The only dependencies outside the standard library are the [requests](#credits) 
 Credits
 ---
 
-WhatFreeGrab borrows heavily from [Yoink !](https://github.com/phracker/yoink) by phracker, using code
+WhatFreeGrab borrows heavily from [Yoink!](https://github.com/phracker/yoink) by phracker, using code
 originally by tobbez, and from [whatapi](https://github.com/isaaczafuta/whatapi) by isaaczafuta. Many thanks.
 
 Installation:
@@ -31,7 +31,7 @@ Now use this command to run the setup wizard and follow the prompts:
 python WFG-setup.py
 ~~~
 
-**notes:** The Debian stable [requests](https://packages.debian.org/wheezy/python-requests) module does not work. You will need to update this using `pip install -U requests`
+**Note:** The Debian stable [requests](https://packages.debian.org/wheezy/python-requests) module does not work. You will need to update this using `pip install -U requests`
 
 Configuration
 ---
