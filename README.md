@@ -1,28 +1,42 @@
-WhatFreeGrab?
+WhatFreeGrab
+===
+
+WhatFreeGrab is an automated freeleech grabber for What.CD.
+
+Tell me more
 ---
 
-*An automated freeleech grabber for What.CD*
-
-WhatFreeGrab? is a Python script to automatically download freeleech torrents
+WhatFreeGrab is a Python script to automatically download freeleech torrents
 from What.CD.
 
-The only dependency outside the standard library is the requests module, and
-that can be downloaded by the script as well.
-
-Edit the wfg.cfg file with your WCD username, password and the target directory
-where you want the torrents saved.
+The only dependencies outside the standard library are the [requests](#credits) and [whatapi](#credits) modules, and both can be downloaded by the script during the setup stage.
 
 Credits
 ---
 
-WhatFreeGrab borrows heavily from Yoink! [1], by phracker, using code
-originally by tobbez, and from whatapi [2] by isaaczafuta. Many thanks.
+WhatFreeGrab borrows heavily from [Yoink !](https://github.com/phracker/yoink) by phracker, using code
+originally by tobbez, and from [whatapi](https://github.com/isaaczafuta/whatapi) by isaaczafuta. Many thanks.
 
-1. [https://github.com/phracker/yoink](https://github.com/phracker/yoink)
-1. [https://github.com/isaaczafuta/whatapi](https://github.com/isaaczafuta/whatapi)
-
-Template Fields
+Installation:
 ---
+
+~~~
+git clone https://github.com/emjaytee404/whatfreegrab.git
+cd whatfreegrab
+~~~
+
+Now use this command to run the setup wizard and follow the prompts:
+
+~~~
+python WFG-setup.py
+~~~
+
+**notes:** The Debian stable [requests](https://packages.debian.org/wheezy/python-requests) module does not work. You will need to update this using `pip install -U requests`
+
+Configuration
+---
+
+### Template Fields
 
 The filename template is created using data fields available for each torrent.
 
@@ -41,6 +55,8 @@ template_music = ${torrentId} ${yoinkFormat}
 ~~~
 
 **Note:** that values outside of the defaults are untested.
+
+### Fields
 
 For music torrents, the following fields are available:
 
