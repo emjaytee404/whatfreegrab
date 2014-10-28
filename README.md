@@ -6,8 +6,7 @@ WhatFreeGrab is an automated freeleech grabber for What.CD.
 Tell me more
 ---
 
-WhatFreeGrab is a Python script to automatically download freeleech torrents
-from What.CD.
+WhatFreeGrab is a Python script to automatically download freeleech torrents from What.CD.
 
 The only dependencies outside the standard library are the [requests](#credits) and [whatapi](#credits) modules, and both can be downloaded by the script during the setup stage.
 
@@ -45,14 +44,14 @@ template_music =  ${artist} - ${groupName} (${format} ${encoding}) [${torrentId}
 template_other =  ${groupName} [${torrentId}]
 ~~~
 
-To match the Yoink! style filenames, set your naming templates like so:
+If you prefer Yoink! style filenames, this will get you pretty close:
 
 ~~~
-template_music = ${torrentId}. ${yoinkFormat}
-template_music = ${torrentId} ${yoinkFormat}
+template_music = ${torrentId}. ${artist} - ${groupYear} - ${groupName} (${media} - ${format} - ${encoding})
+template_other = ${torrentId} ${groupName}
 ~~~
 
-**Note:** that values outside of the defaults are untested.
+**Note:** Values outside of the defaults are untested.
 
 ### Fields
 
