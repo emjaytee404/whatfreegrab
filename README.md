@@ -31,8 +31,6 @@ Now use this command to run the setup wizard and follow the prompts:
 python WFG-setup.py
 ~~~
 
-**Note:** The Debian stable [requests](https://packages.debian.org/wheezy/python-requests) module does not work. You will need to update this using `pip install -U requests`
-
 Configuration
 ---
 
