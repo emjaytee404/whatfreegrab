@@ -254,10 +254,12 @@ class WhatFreeGrab(object):
                 # just skip this page and we'll catch up on the next run.
                 try:
                     pages = self.get_freeleech(page, params)
-                except whatapi.whatapi.RequestException:
+                except whatapi.whatapi.RequestException, e:
+                    self.message("")
+                    self.message("Site error: %s" % e, error=True)
                     pass
-
-                self.message(".", newline=False)
+                else:
+                    self.message(".", newline=False)
 
                 if len(self.torrent_list) > self.max_torrents:
                     self.message("")
