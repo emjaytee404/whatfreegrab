@@ -46,16 +46,25 @@ def setup():
         sys.exit(1)
 
     config = ConfigParser.RawConfigParser()
+    config.read(CONFIG_FILE)
 
     while True:
 
         print "Next we will need your What.CD username and password."
 
-        username = raw_input("Enter your username: ")
+        username = config.get('login', 'username')
+        prompt = "Enter your username"
+        prompt += (username and " [" + username + "]")
+        prompt += ": "
+        username = raw_input(prompt) or username
         if not username:
             continue
 
-        password = getpass.getpass("Enter your password (will not be shown on screen): ")
+        password = config.get('login', 'password')
+        prompt = "Enter your password (will not be shown)"
+        prompt += (password and " [<saved password>]")
+        prompt += ": "
+        password = getpass.getpass(prompt) or password
         if not password:
             continue
 
@@ -74,7 +83,11 @@ def setup():
             print "success!"
             break
 
-    config.add_section('login')
+    try:
+        config.add_section('login')
+    except ConfigParser.DuplicateSectionError:
+        pass
+
     config.set('login', 'username', username)
     config.set('login', 'password', password)
 
@@ -84,7 +97,11 @@ def setup():
 
         print "The directory where the script downloads torrent files is called the target."
 
-        target = raw_input("Enter target: ")
+        target = config.get('download', 'target')
+        prompt = "Enter target"
+        prompt += (target and " [" + target + "]")
+        prompt += ": "
+        target = raw_input(prompt) or target
 
         full_target = os.path.realpath(os.path.expanduser(target))
 
@@ -104,7 +121,11 @@ def setup():
             print "Looks good."
             break
 
-    config.add_section('download')
+    try:
+        config.add_section('download')
+    except ConfigParser.DuplicateSectionError:
+        pass
+
     config.set('download', 'target', target)
 
     pause()
