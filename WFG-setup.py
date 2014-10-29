@@ -3,6 +3,7 @@
 import getpass
 import os
 import random
+import shutil
 import sys
 import urllib2
 import zipfile
@@ -157,6 +158,9 @@ def download_module(module_name, module_url):
     print "extracting... ",
 
     data.extractall(members=filelist)
+
+    # Remove previous version first.
+    shutil.rmtree(module_name, ignore_errors=True)
 
     os.rename(dirname, module_name)
     os.rmdir(root)
