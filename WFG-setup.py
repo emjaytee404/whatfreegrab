@@ -52,18 +52,26 @@ def setup():
 
         print "Next we will need your What.CD username and password."
 
-        username = config.get('login', 'username')
         prompt = "Enter your username"
-        prompt += (username and " [" + username + "]")
-        prompt += ": "
+        try:
+            username = config.get('login', 'username')
+            prompt += " [" + username + "]: "
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+            username = None
+            prompt += ": "
+
         username = raw_input(prompt) or username
         if not username:
             continue
 
-        password = config.get('login', 'password')
         prompt = "Enter your password (will not be shown)"
-        prompt += (password and " [<saved password>]")
-        prompt += ": "
+        try:
+            password = config.get('login', 'password')
+            prompt += " [<saved password>]: "
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+            password = None
+            prompt += ": "
+
         password = getpass.getpass(prompt) or password
         if not password:
             continue
@@ -97,10 +105,14 @@ def setup():
 
         print "The directory where the script downloads torrent files is called the target."
 
-        target = config.get('download', 'target')
         prompt = "Enter target"
-        prompt += (target and " [" + target + "]")
-        prompt += ": "
+        try:
+            target = config.get('download', 'target')
+            prompt += " [" + target + "]: "
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+            target = None
+            prompt += ": "
+
         target = raw_input(prompt) or target
 
         full_target = os.path.realpath(os.path.expanduser(target))
