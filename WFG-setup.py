@@ -23,32 +23,20 @@ def setup():
     print ""
 
     try:
-        print "Looking for Requests module...",
+        print "Installing/updating Requests module: ",
+        download_module("requests", "https://github.com/kennethreitz/requests/archive/v2.0.1.zip")
         import requests
-    except ImportError:
-        print "failed. :("
-        try:
-            download_module("requests", "https://github.com/kennethreitz/requests/archive/v2.0.1.zip")
-            import requests
-        except:
-            print MESSAGES['module_error'] % "requests"
-            raise
-    else:
-        print "success!"
+    except:
+        print MESSAGES['module_error'] % "requests"
+        raise
 
     try:
-        print "Looking for WhatAPI module...",
+        print "Installing/updating WhatAPI module: ",
+        download_module('whatapi', 'https://github.com/emjaytee404/whatapi/archive/stable.zip')
         from whatapi import whatapi
-    except ImportError:
-        print "failed. :("
-        try:
-            download_module('whatapi', 'https://github.com/emjaytee404/whatapi/archive/stable.zip')
-            from whatapi import whatapi
-        except:
-            print MESSAGES['module_error'] % "whatapi"
-            raise
-    else:
-        print "success!"
+    except:
+        print MESSAGES['module_error'] % "whatapi"
+        raise
 
     pause()
 
@@ -150,14 +138,8 @@ def pause(msg="Press ENTER to continue... "):
     print ""
 
 def download_module(module_name, module_url):
-    print MESSAGES['module_missing'] % module_name
-    try:
-        raw_input()
-    except KeyboardInterrupt:
-        print MESSAGES['module_cancelled'] % module_name
-        raise
 
-    print "Downloading... ",
+    print "downloading... ",
 
     data = urllib2.urlopen(module_url)
     data = StringIO.StringIO(data.read())
@@ -193,13 +175,6 @@ WhatFreeGrab Setup
 Hey there! This little program will help you setup WhatFreeGrab.
 
 You will need your What.CD username and password, so have those ready.
-"""
-MESSAGES['module_missing'] = """
-It seems you are missing the '%s' module.
-Press ENTER to automatically download and extract this module.
-"""
-MESSAGES['module_cancelled'] = """
-You must install the '%s' module before trying to run this script.
 """
 MESSAGES['module_error'] = """
 An error ocurred trying to download/extract the '%s' module.
